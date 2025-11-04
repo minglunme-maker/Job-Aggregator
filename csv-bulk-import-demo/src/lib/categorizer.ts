@@ -44,6 +44,14 @@ export class JobCategorizer {
    * Categorize a job based on title and description using AI
    */
   async categorizeJob(jobTitle: string, jobDescription?: string): Promise<JobCategorizationResult> {
+    // Demo mode: Use keyword matching instead of OpenAI
+    const isDemo = !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo';
+
+    if (isDemo) {
+      console.log('📝 Demo mode: Using keyword-based categorization');
+      return this.fallbackCategorization(jobTitle, jobDescription);
+    }
+
     try {
       const prompt = this.buildCategorizationPrompt(jobTitle, jobDescription);
 

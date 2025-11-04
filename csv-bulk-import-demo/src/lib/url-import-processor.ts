@@ -73,6 +73,7 @@ export class URLImportProcessor {
     onProgress?: (progress: URLImportProgress) => void
   ): Promise<URLImportSummary> {
     const { skipDuplicates = true, categorizeWithAI = true } = options;
+    const isDemo = !process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY === 'demo';
 
     const summary: URLImportSummary = {
       total: urls.length,
@@ -82,9 +83,9 @@ export class URLImportProcessor {
       results: []
     };
 
-    // Stage 1: Check for duplicates
+    // Stage 1: Check for duplicates (skip in demo mode)
     let urlsToProcess = urls;
-    if (skipDuplicates) {
+    if (skipDuplicates && !isDemo) {
       const existingUrls = await this.checkDuplicates(urls);
       urlsToProcess = urls.filter(url => !existingUrls.includes(url));
       summary.duplicates = existingUrls.length;
@@ -165,29 +166,41 @@ export class URLImportProcessor {
           hero_banner_url: jobData.heroBannerUrl || null
         };
 
-        // Insert into database
-        const { data: insertedData, error: insertError } = await this.supabase
-          .from('jobs')
-          .insert([dbData])
-          .select('id')
-          .single();
-
-        if (insertError) {
-          summary.failed++;
-          summary.results.push({
-            url: scrapeResult.url,
-            success: false,
-            error: `Database error: ${insertError.message}`,
-            scrapedData: jobData
-          });
-        } else {
+        // Insert into database (skip in demo mode)
+        if (isDemo) {
+          // Demo mode: Just return success with scraped data (no database)
+          console.log('📝 Demo mode: Skipping database insert, showing scraped data only');
           summary.successful++;
           summary.results.push({
             url: scrapeResult.url,
             success: true,
-            jobId: insertedData.id,
+            jobId: `demo-${Date.now()}-${i}`,
             scrapedData: jobData
           });
+        } else {
+          const { data: insertedData, error: insertError } = await this.supabase
+            .from('jobs')
+            .insert([dbData])
+            .select('id')
+            .single();
+
+          if (insertError) {
+            summary.failed++;
+            summary.results.push({
+              url: scrapeResult.url,
+              success: false,
+              error: `Database error: ${insertError.message}`,
+              scrapedData: jobData
+            });
+          } else {
+            summary.successful++;
+            summary.results.push({
+              url: scrapeResult.url,
+              success: true,
+              jobId: insertedData.id,
+              scrapedData: jobData
+            });
+          }
         }
 
       } catch (error: any) {
