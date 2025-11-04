@@ -124,6 +124,13 @@ export default function URLImportPage() {
         body: JSON.stringify({ urls, limit: 3 })
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Preview API error:', errorText);
+        alert(`Preview failed: HTTP ${response.status}. Check console for details.`);
+        return;
+      }
+
       const result = await response.json();
 
       if (result.success) {
@@ -132,6 +139,7 @@ export default function URLImportPage() {
         alert(`Preview failed: ${result.error}`);
       }
     } catch (error: any) {
+      console.error('Preview error:', error);
       alert(`Preview error: ${error.message}`);
     } finally {
       setPreviewing(false);
@@ -157,6 +165,13 @@ export default function URLImportPage() {
           }
         })
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Import API error:', errorText);
+        alert(`Import failed: HTTP ${response.status}. Check console for details.`);
+        return;
+      }
 
       const result = await response.json();
 
