@@ -4,7 +4,7 @@ import { ValidationResults } from '@/components/ValidationResults';
 import { ScrapingProgress } from '@/components/ScrapingProgress';
 import { ScrapedDataPreview } from '@/components/ScrapedDataPreview';
 import { ImportSummary } from '@/components/ImportSummary';
-import { Upload, Eye, Download, Play, Settings } from 'lucide-react';
+import { Upload, Eye, Download, Play, Settings, AlertCircle } from 'lucide-react';
 
 interface ValidationError {
   row: number;
