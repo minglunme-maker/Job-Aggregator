@@ -1,5 +1,7 @@
+import { ChangeEvent } from 'react';
+
 export default function TestBasic() {
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
