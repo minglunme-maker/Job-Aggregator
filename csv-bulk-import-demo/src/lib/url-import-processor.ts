@@ -36,6 +36,11 @@ export class URLImportProcessor {
    * Check if a job URL already exists in database
    */
   async checkDuplicate(applyLink: string): Promise<boolean> {
+    // In demo mode, skip duplicate check
+    if (!this.supabase) {
+      return false;
+    }
+
     const { data, error } = await this.supabase
       .from('jobs')
       .select('id')
@@ -49,6 +54,11 @@ export class URLImportProcessor {
    * Check multiple URLs for duplicates
    */
   async checkDuplicates(urls: string[]): Promise<string[]> {
+    // In demo mode, skip duplicate check
+    if (!this.supabase) {
+      return [];
+    }
+
     const { data, error } = await this.supabase
       .from('jobs')
       .select('apply_link')
@@ -233,6 +243,12 @@ export class URLImportProcessor {
     summary: URLImportSummary,
     errors: any[]
   ): Promise<string | null> {
+    // In demo mode, skip logging
+    if (!this.supabase) {
+      console.log('📝 Demo mode: Skipping import logging');
+      return null;
+    }
+
     try {
       const { data, error } = await this.supabase
         .from('import_logs')
