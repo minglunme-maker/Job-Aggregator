@@ -1,8 +1,9 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Only initialize OpenAI if we have a real API key
+const openai = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'demo'
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
 
 export interface JobCategorizationResult {
   category: string;
@@ -34,7 +35,7 @@ export type JobCategory = typeof JOB_CATEGORIES[number];
  * AI-based job categorization using OpenAI
  */
 export class JobCategorizer {
-  private openai: OpenAI;
+  private openai: OpenAI | null;
 
   constructor() {
     this.openai = openai;
@@ -45,7 +46,7 @@ export class JobCategorizer {
    */
   async categorizeJob(jobTitle: string, jobDescription?: string): Promise<JobCategorizationResult> {
     // Demo mode: Use keyword matching instead of OpenAI
-    const isDemo = !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo';
+    const isDemo = !this.openai || !process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'demo';
 
     if (isDemo) {
       console.log('📝 Demo mode: Using keyword-based categorization');
@@ -55,7 +56,7 @@ export class JobCategorizer {
     try {
       const prompt = this.buildCategorizationPrompt(jobTitle, jobDescription);
 
-      const response = await this.openai.chat.completions.create({
+      const response = await this.openai!.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
           {
