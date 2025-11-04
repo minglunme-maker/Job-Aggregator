@@ -239,8 +239,24 @@ https://www.mycareersfuture.gov.sg/job/details/example-job-id`;
     a.click();
   };
 
+  const isDemo = !process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL === 'demo';
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-3">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              <p className="font-semibold">
+                🎯 DEMO MODE - No database connection required! Scraped data will be displayed but not saved.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
